@@ -28,3 +28,53 @@ init_grid <- function(clues) {
     class = "slitherlink_grid"
   )
 }
+#' Print a Slitherlink grid
+#'
+#' Custom print method to display the grid in the R console.
+#'
+#' @param x An object of class 'slitherlink_grid'.
+#' @param ... Additional arguments (unused).
+#' @export
+print.slitherlink_grid <- function(x, ...) {
+  cat("Slitherlink Grid (", x$n, "x", x$m, ")\n\n", sep = "")
+
+  for (i in 1:x$n) {
+    # Print intersections and horizontal segments using "+" and "x"
+    for (j in 1:x$m) {
+      cat("+")
+      h_val <- x$seg_h[i, j]
+      if (h_val == 1) cat("---")
+      else if (h_val == -1) cat(" x ")
+      else cat("   ")
+    }
+    cat("+\n")
+
+    # Print vertical segments and clues using "|"
+    for (j in 1:x$m) {
+      v_val <- x$seg_v[i, j]
+      if (v_val == 1) cat("| ")
+      else if (v_val == -1) cat("x ")
+      else cat("  ")
+
+      clue <- x$clues[i, j]
+      if (is.na(clue)) cat("  ")
+      else cat(clue, " ")
+    }
+
+    # Last vertical segment of the row
+    v_val_last <- x$seg_v[i, x$m + 1]
+    if (v_val_last == 1) cat("|\n")
+    else if (v_val_last == -1) cat("x\n")
+    else cat(" \n")
+  }
+
+  # Print the bottom-most intersections and horizontal segments
+  for (j in 1:x$m) {
+    cat("+")
+    h_val <- x$seg_h[x$n + 1, j]
+    if (h_val == 1) cat("---")
+    else if (h_val == -1) cat(" x ")
+    else cat("   ")
+  }
+  cat("+\n")
+}
