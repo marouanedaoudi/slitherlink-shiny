@@ -28,6 +28,41 @@ init_grid <- function(clues) {
     class = "slitherlink_grid"
   )
 }
+#' Toggle a segment in a Slitherlink grid
+#'
+#' Cycles through states: 0 (empty) -> 1 (drawn) -> -1 (crossed) -> 0.
+#'
+#' @param grid An object of class 'slitherlink_grid'.
+#' @param type Either "h" (horizontal) or "v" (vertical).
+#' @param i Row index of the segment.
+#' @param j Column index of the segment.
+#' @return The updated 'slitherlink_grid' object.
+#' @export
+toggle_segment <- function(grid, type, i, j) {
+  if (!inherits(grid, "slitherlink_grid")) stop("'grid' must be a slitherlink_grid object.")
+  type <- match.arg(type, c("h", "v"))
+
+  if (type == "h") {
+    if (i < 1 || i > grid$n + 1 || j < 1 || j > grid$m)
+      stop("Index out of bounds for horizontal segment.")
+    grid$seg_h[i, j] <- switch(as.character(grid$seg_h[i, j]),
+      "0"  = 1L,
+      "1"  = -1L,
+      "-1" = 0L
+    )
+  } else {
+    if (i < 1 || i > grid$n || j < 1 || j > grid$m + 1)
+      stop("Index out of bounds for vertical segment.")
+    grid$seg_v[i, j] <- switch(as.character(grid$seg_v[i, j]),
+      "0"  = 1L,
+      "1"  = -1L,
+      "-1" = 0L
+    )
+  }
+
+  grid
+}
+
 #' Print a Slitherlink grid
 #'
 #' Custom print method to display the grid in the R console.
