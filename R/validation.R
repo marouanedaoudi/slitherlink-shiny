@@ -116,3 +116,15 @@ check_loop <- function(grid) {
 
   all(visited[active])
 }
+
+#' Check if a Slitherlink grid is fully solved
+#'
+#' A grid is solved when all clue constraints are exactly satisfied
+#' and the drawn segments form a single closed loop.
+#'
+#' @param grid An object of class 'slitherlink_grid'.
+#' @return A logical value: TRUE if the puzzle is solved.
+#' @export
+is_solved <- function(grid) {
+  check_clues(grid, strict = TRUE) && check_loop(grid)
+}
