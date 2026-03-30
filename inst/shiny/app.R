@@ -166,6 +166,16 @@ ui <- fluidPage(
       br(),
       actionButton("hint",     "Hint",      class = "btn-default btn-block"),
       hr(),
+      tags$strong("Random Puzzle"),
+      fluidRow(
+        column(6, numericInput("rand_n", "Rows", value = 5L,
+                               min = 2L, max = 10L, step = 1L)),
+        column(6, numericInput("rand_m", "Cols", value = 5L,
+                               min = 2L, max = 10L, step = 1L))
+      ),
+      actionButton("random_puzzle", "Generate Random",
+                   class = "btn-success btn-block"),
+      hr(),
       uiOutput("status_box"),
       hr(),
       helpText(
@@ -234,6 +244,25 @@ server <- function(input, output, session) {
       }
     }
     showNotification("No hint available.", type = "message")
+  })
+
+  observeEvent(input$random_puzzle, {
+    n <- as.integer(input$rand_n)
+    m <- as.integer(input$rand_m)
+    withProgress(message = "Generating puzzle\u2026", value = 0.5, {
+      g <- tryCatch(
+        random_puzzle(n = n, m = m),
+        error = function(e) NULL
+      )
+    })
+    if (is.null(g)) {
+      showNotification(
+        "Could not generate a puzzle. Try a different size.",
+        type = "error"
+      )
+    } else {
+      grid(g)
+    }
   })
 
   observeEvent(input$solve, {
