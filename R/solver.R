@@ -83,18 +83,24 @@ has_contradiction <- function(grid) {
   for (i in 1:(n + 1L)) {
     for (j in 1:m) {
       if (grid$seg_h[i, j] == 1L) {
-        a <- node_id(i, j); b <- node_id(i, j + 1L)
-        degree[a] <- degree[a] + 1L; degree[b] <- degree[b] + 1L
-        adj[[a]] <- c(adj[[a]], b);  adj[[b]] <- c(adj[[b]], a)
+        a <- node_id(i, j)
+        b <- node_id(i, j + 1L)
+        degree[a] <- degree[a] + 1L
+        degree[b] <- degree[b] + 1L
+        adj[[a]] <- c(adj[[a]], b)
+        adj[[b]] <- c(adj[[b]], a)
       }
     }
   }
   for (i in 1:n) {
     for (j in 1:(m + 1L)) {
       if (grid$seg_v[i, j] == 1L) {
-        a <- node_id(i, j); b <- node_id(i + 1L, j)
-        degree[a] <- degree[a] + 1L; degree[b] <- degree[b] + 1L
-        adj[[a]] <- c(adj[[a]], b);  adj[[b]] <- c(adj[[b]], a)
+        a <- node_id(i, j)
+        b <- node_id(i + 1L, j)
+        degree[a] <- degree[a] + 1L
+        degree[b] <- degree[b] + 1L
+        adj[[a]] <- c(adj[[a]], b)
+        adj[[b]] <- c(adj[[b]], a)
       }
     }
   }
@@ -110,11 +116,17 @@ has_contradiction <- function(grid) {
     total_drawn_edges <- (sum(grid$seg_h == 1L) + sum(grid$seg_v == 1L))
     # BFS from first active node
     visited <- logical(num_nodes)
-    queue <- active[1L]; visited[queue] <- TRUE
+    queue <- active[1L]
+    visited[queue] <- TRUE
     while (length(queue) > 0L) {
-      cur <- queue[1L]; queue <- queue[-1L]
-      for (nb in adj[[cur]])
-        if (!visited[nb]) { visited[nb] <- TRUE; queue <- c(queue, nb) }
+      cur <- queue[1L]
+      queue <- queue[-1L]
+      for (nb in adj[[cur]]) {
+        if (!visited[nb]) {
+          visited[nb] <- TRUE
+          queue <- c(queue, nb)
+        }
+      }
     }
     component <- which(visited)
     # If this component forms a closed loop (all degree 2) but doesn't account
@@ -133,7 +145,8 @@ has_contradiction <- function(grid) {
 # Apply cell-level deduction rules once over the whole grid.
 # Returns the updated grid (possibly with more segments decided).
 apply_cell_rules <- function(grid) {
-  n <- grid$n; m <- grid$m
+  n <- grid$n
+  m <- grid$m
 
   for (i in 1:n) {
     for (j in 1:m) {
@@ -168,7 +181,8 @@ apply_cell_rules <- function(grid) {
 
 # Apply node-level deduction rules once over the whole grid.
 apply_node_rules <- function(grid) {
-  n <- grid$n; m <- grid$m
+  n <- grid$n
+  m <- grid$m
 
   for (i in 1:(n + 1L)) {
     for (j in 1:(m + 1L)) {
