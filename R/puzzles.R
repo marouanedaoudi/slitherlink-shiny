@@ -39,17 +39,20 @@ PUZZLES <- list(
     )
   ),
 
-  # 5x5 — based on the example from the project specification
+  # 5x5 — hand-crafted loop, clues derived from the solution
+  # Solution loop: top row → right col (2 down) → middle row left (3 left) →
+  #   down col 3 (3 down) → bottom-left (2 left) → left col up (5 up)
+  # Verified by solve_grid()
   hard_5x5 = list(
     difficulty = "hard",
     size       = "5x5",
-    verified   = FALSE,
+    verified   = TRUE,
     clues      = matrix(
-      c( 2,  2, NA, NA, NA,
-        NA, NA,  3,  2, NA,
-        NA, NA, NA, NA,  1,
-         3,  0, NA, NA,  2,
-        NA,  3,  2,  2, NA),
+      c(2, 1, 1, 1, 2,
+        1, 0, 1, 1, 2,
+        1, 1, 2, 1, 1,
+        1, 1, 1, 0, 0,
+        2, 2, 1, 0, 0),
       nrow = 5, byrow = TRUE
     )
   )
