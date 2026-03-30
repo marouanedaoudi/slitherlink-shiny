@@ -163,6 +163,8 @@ ui <- fluidPage(
       actionButton("reset",    "Reset",     class = "btn-warning btn-block"),
       br(),
       actionButton("solve",    "Solve",     class = "btn-info    btn-block"),
+      br(),
+      actionButton("hint",     "Hint",      class = "btn-default btn-block"),
       hr(),
       uiOutput("status_box"),
       hr(),
@@ -201,6 +203,37 @@ server <- function(input, output, session) {
 
   observeEvent(input$reset, {
     grid(get_puzzle(input$puzzle_name))
+  })
+
+  observeEvent(input$hint, {
+    if (is_solved(grid())) return()
+    solution <- solve_grid(grid())
+    if (is.null(solution)) {
+      showNotification("No solution found — cannot give a hint.",
+                       type = "error")
+      return()
+    }
+    g <- grid()
+    # Find the first segment that should be drawn (1) but is currently empty (0)
+    for (i in seq_len(nrow(solution$seg_h))) {
+      for (j in seq_len(ncol(solution$seg_h))) {
+        if (solution$seg_h[i, j] == 1L && g$seg_h[i, j] == 0L) {
+          g$seg_h[i, j] <- 1L
+          grid(g)
+          return()
+        }
+      }
+    }
+    for (i in seq_len(nrow(solution$seg_v))) {
+      for (j in seq_len(ncol(solution$seg_v))) {
+        if (solution$seg_v[i, j] == 1L && g$seg_v[i, j] == 0L) {
+          g$seg_v[i, j] <- 1L
+          grid(g)
+          return()
+        }
+      }
+    }
+    showNotification("No hint available.", type = "message")
   })
 
   observeEvent(input$solve, {
