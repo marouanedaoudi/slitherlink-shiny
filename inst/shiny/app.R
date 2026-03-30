@@ -158,9 +158,11 @@ ui <- fluidPage(
     sidebarPanel(
       width = 3,
       selectInput("puzzle_name", "Select puzzle", choices = puzzle_choices),
-      actionButton("new_game", "New Game",  class = "btn-primary  btn-block"),
+      actionButton("new_game", "New Game",  class = "btn-primary btn-block"),
       br(),
-      actionButton("reset",    "Reset",     class = "btn-warning  btn-block"),
+      actionButton("reset",    "Reset",     class = "btn-warning btn-block"),
+      br(),
+      actionButton("solve",    "Solve",     class = "btn-info    btn-block"),
       hr(),
       uiOutput("status_box"),
       hr(),
@@ -199,6 +201,15 @@ server <- function(input, output, session) {
 
   observeEvent(input$reset, {
     grid(get_puzzle(input$puzzle_name))
+  })
+
+  observeEvent(input$solve, {
+    solution <- solve_grid(grid())
+    if (is.null(solution)) {
+      showNotification("No solution found for this puzzle.", type = "error")
+    } else {
+      grid(solution)
+    }
   })
 
   observeEvent(input$grid_click, {
