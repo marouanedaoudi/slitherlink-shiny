@@ -1,0 +1,212 @@
+---
+title: "Introduction to slitherlinkshiny"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to slitherlinkshiny}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## What is Slitherlink?
+
+Slitherlink is a logic puzzle played on a rectangular grid of dots.
+The goal is to draw segments between adjacent dots to form a **single
+closed loop** — no branches, no crossings, no loose ends.
+
+Numbers inside cells indicate exactly how many of the cell's four
+edges belong to the loop.  Cells without a number are unconstrained.
+
+```
++   +   +   +
+  2   1   2
++   +   +   +
+  1   0   1
++   +   +   +
+  2   1   2
++   +   +   +
+```
+
+The unique solution for the 3×3 puzzle above is the outer rectangle.
+
+---
+
+## Grid representation
+
+The package stores a puzzle as a `slitherlink_grid` object with three
+components:
+
+| Field    | Dimensions        | Meaning                      |
+|----------|-------------------|------------------------------|
+| `clues`  | n × m             | Clue values (NA = no clue)   |
+| `seg_h`  | (n+1) × m         | Horizontal segment states    |
+| `seg_v`  | n × (m+1)         | Vertical segment states      |
+
+Each segment is one of three integer values:
+
+| Value | Meaning  |
+|-------|----------|
+|  `0`  | Empty    |
+|  `1`  | Drawn    |
+| `-1`  | Crossed  |
+
+---
+
+## Creating a grid
+
+Use `init_grid()` to build a grid from a clue matrix.
+`NA` marks cells with no constraint.
+
+```{r create}
+library(slitherlinkshiny)
+
+clues <- matrix(
+  c(2, 1, 2,
+    1, 0, 1,
+    2, 1, 2),
+  nrow = 3, byrow = TRUE
+)
+g <- init_grid(clues)
+print(g)
+```
+
+---
+
+## Predefined puzzles
+
+The package ships with three ready-to-play puzzles.
+
+```{r puzzles}
+list_puzzles()
+```
+
+Load one with `get_puzzle()`:
+
+```{r load_puzzle}
+g <- get_puzzle("medium_4x4")
+print(g)
+```
+
+---
+
+## Toggling segments
+
+`toggle_segment()` cycles a segment through the three states:
+`0 → 1 → -1 → 0`.
+
+- `type = "h"` targets a horizontal segment at row `i`, column `j`
+  (row index counts from top; `i` ranges from 1 to n+1).
+- `type = "v"` targets a vertical segment (`i` from 1 to n,
+  `j` from 1 to m+1).
+
+```{r toggle}
+g <- get_puzzle("easy_3x3")
+
+# Draw the top edge of cell (1,1): horizontal segment h[1,1]
+g <- toggle_segment(g, type = "h", i = 1, j = 1)
+g$seg_h[1, 1]   # now 1 (drawn)
+
+# Draw it again to cross it
+g <- toggle_segment(g, type = "h", i = 1, j = 1)
+g$seg_h[1, 1]   # now -1 (crossed)
+
+# Draw it once more to reset
+g <- toggle_segment(g, type = "h", i = 1, j = 1)
+g$seg_h[1, 1]   # back to 0 (empty)
+```
+
+---
+
+## Validating the state
+
+Three functions check the current state of the grid.
+
+### `check_clues()`
+
+Verifies that no clue constraint is violated.
+
+- `strict = FALSE` (default for in-progress play): drawn edges must
+  not *exceed* the clue.
+- `strict = TRUE`: drawn edges must *exactly equal* the clue.
+
+```{r check_clues}
+g <- get_puzzle("easy_3x3")
+check_clues(g, strict = FALSE)   # TRUE  — nothing drawn yet
+check_clues(g, strict = TRUE)    # FALSE — no clue is exactly matched
+```
+
+### `check_loop()`
+
+Returns `TRUE` if the drawn segments form a single valid closed loop
+(every active node has degree exactly 2, and all active nodes are
+connected).
+
+```{r check_loop}
+check_loop(g)   # FALSE — no segments drawn
+```
+
+### `is_solved()`
+
+A puzzle is solved when both `check_clues(strict = TRUE)` and
+`check_loop()` return `TRUE`.
+
+```{r is_solved}
+is_solved(g)   # FALSE
+```
+
+---
+
+## Solving a puzzle automatically
+
+`solve_grid()` uses constraint propagation followed by backtracking
+to find the unique solution.
+
+```{r solve}
+g   <- get_puzzle("easy_3x3")
+sol <- solve_grid(g)
+print(sol)
+is_solved(sol)
+```
+
+The solver works on all three built-in puzzles:
+
+```{r solve_all}
+for (nm in list_puzzles()$name) {
+  sol <- solve_grid(get_puzzle(nm))
+  cat(nm, "→ solved:", is_solved(sol), "\n")
+}
+```
+
+If the puzzle has no valid solution, `solve_grid()` returns `NULL`:
+
+```{r solve_null}
+impossible <- init_grid(matrix(2L, 1, 1))  # clue 2 in a 1x1 grid: impossible
+is.null(solve_grid(impossible))
+```
+
+---
+
+## Interactive Shiny app
+
+The package includes a full interactive web application.
+Launch it from the R console:
+
+```r
+run_app()
+```
+
+Features:
+
+- **Select puzzle** — choose from the built-in library.
+- **New Game / Reset** — load or restart the selected puzzle.
+- **Click segments** — click near any edge to cycle its state
+  (empty → drawn → crossed → empty).
+- **Solve** — fill in the complete solution instantly.
+- **Status indicator** — shows *In progress*, *Constraint violated*,
+  or *Puzzle solved!* in real time.
