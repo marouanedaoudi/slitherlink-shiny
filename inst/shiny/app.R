@@ -150,6 +150,11 @@ ui <- fluidPage(
     .status-progress  { background: #e8f0fe; color: #1a56cc; }
     .status-violation { background: #fde8e8; color: #cc1a1a; }
     .status-solved    { background: #e8fde8; color: #1a7a1a; }
+    #timer_display {
+      font-size: 22px; font-weight: bold; text-align: center;
+      letter-spacing: 2px; margin: 6px 0;
+      font-family: 'Courier New', monospace;
+    }
   "))),
 
   titlePanel("Slitherlink"),
@@ -179,6 +184,7 @@ ui <- fluidPage(
                    class = "btn-success btn-block"),
       hr(),
       uiOutput("status_box"),
+      uiOutput("timer_display"),
       hr(),
       helpText(
         "Click near a segment to cycle it:",
@@ -210,6 +216,28 @@ server <- function(input, output, session) {
   grid    <- reactiveVal(get_puzzle("easy_3x3"))
   history <- reactiveVal(list())   # stack of previous grid states
 
+  # Timer: NULL = idle, POSIXct = start time, NA = stopped
+  timer_start   <- reactiveVal(NULL)
+  timer_elapsed <- reactiveVal(0L)   # seconds at stop time
+
+  reset_timer <- function() {
+    timer_start(NULL)
+    timer_elapsed(0L)
+  }
+
+  start_timer <- function() {
+    if (is.null(timer_start()))
+      timer_start(Sys.time())
+  }
+
+  stop_timer <- function() {
+    s <- timer_start()
+    if (!is.null(s) && !is.na(s)) {
+      timer_elapsed(as.integer(difftime(Sys.time(), s, units = "secs")))
+      timer_start(NA)   # sentinel: timer frozen
+    }
+  }
+
   push_history <- function() {
     history(c(history(), list(grid())))
   }
@@ -218,11 +246,13 @@ server <- function(input, output, session) {
 
   observeEvent(input$new_game, {
     clear_history()
+    reset_timer()
     grid(get_puzzle(input$puzzle_name))
   })
 
   observeEvent(input$reset, {
     clear_history()
+    reset_timer()
     grid(get_puzzle(input$puzzle_name))
   })
 
@@ -284,6 +314,7 @@ server <- function(input, output, session) {
       )
     } else {
       clear_history()
+      reset_timer()
       grid(g)
     }
   })
@@ -302,14 +333,36 @@ server <- function(input, output, session) {
     g <- grid()
     seg <- find_nearest_segment(g, input$grid_click$x, input$grid_click$y)
     if (!is.null(seg)) {
+      start_timer()
       push_history()
-      grid(toggle_segment(g, seg$type, seg$i, seg$j))
+      new_g <- toggle_segment(g, seg$type, seg$i, seg$j)
+      if (is_solved(new_g)) stop_timer()
+      grid(new_g)
     }
   })
 
   output$grid_plot <- renderPlot({
     draw_grid(grid())
   }, bg = "#f8f8f8")
+
+  output$timer_display <- renderUI({
+    s <- timer_start()
+
+    if (is.null(s)) {
+      secs <- 0L
+    } else if (is.na(s)) {
+      secs <- timer_elapsed()
+    } else {
+      invalidateLater(1000, session)
+      secs <- as.integer(difftime(Sys.time(), s, units = "secs"))
+    }
+
+    mm  <- secs %/% 60L
+    ss  <- secs %%  60L
+    lbl <- sprintf("%02d:%02d", mm, ss)
+    col <- if (!is.null(s) && is.na(s)) "#1a7a1a" else "#555555"
+    div(id = "timer_display", style = paste0("color:", col, ";"), lbl)
+  })
 
   output$status_box <- renderUI({
     g <- grid()
