@@ -2,6 +2,8 @@
 
 An R package for playing and solving [Slitherlink](https://en.wikipedia.org/wiki/Slitherlink) logic puzzles, with a full interactive Shiny application.
 
+![Demo](man/figures/demo.gif)
+
 ## What is Slitherlink?
 
 Slitherlink is a logic puzzle played on a rectangular grid of dots. The goal is to draw segments between adjacent dots to form a **single closed loop** — no branches, no crossings, no dead ends. Numbers inside cells indicate exactly how many of the cell's four edges belong to the loop.
