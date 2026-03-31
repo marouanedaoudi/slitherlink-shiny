@@ -55,6 +55,7 @@ set_seg <- function(grid, e, val) {
 #'
 #' @param grid An object of class 'slitherlink_grid'.
 #' @return TRUE if a contradiction exists, FALSE otherwise.
+#' @keywords internal
 has_contradiction <- function(grid) {
   n <- grid$n
   m <- grid$m
@@ -225,6 +226,7 @@ apply_node_rules <- function(grid) {
 #' @return A list with two elements:
 #'   \item{grid}{The updated grid after propagation.}
 #'   \item{contradiction}{TRUE if a contradiction was found.}
+#' @keywords internal
 propagate <- function(grid) {
   repeat {
     prev_h <- grid$seg_h
