@@ -165,6 +165,8 @@ ui <- fluidPage(
       actionButton("solve",    "Solve",     class = "btn-info    btn-block"),
       br(),
       actionButton("hint",     "Hint",      class = "btn-default btn-block"),
+      br(),
+      actionButton("undo",     "Undo",      class = "btn-default btn-block"),
       hr(),
       tags$strong("Random Puzzle"),
       fluidRow(
@@ -205,14 +207,33 @@ ui <- fluidPage(
 # ---------------------------------------------------------------------------
 
 server <- function(input, output, session) {
-  grid <- reactiveVal(get_puzzle("easy_3x3"))
+  grid    <- reactiveVal(get_puzzle("easy_3x3"))
+  history <- reactiveVal(list())   # stack of previous grid states
+
+  push_history <- function() {
+    history(c(history(), list(grid())))
+  }
+
+  clear_history <- function() history(list())
 
   observeEvent(input$new_game, {
+    clear_history()
     grid(get_puzzle(input$puzzle_name))
   })
 
   observeEvent(input$reset, {
+    clear_history()
     grid(get_puzzle(input$puzzle_name))
+  })
+
+  observeEvent(input$undo, {
+    h <- history()
+    if (length(h) == 0L) {
+      showNotification("Nothing to undo.", type = "message")
+      return()
+    }
+    grid(h[[length(h)]])
+    history(h[-length(h)])
   })
 
   observeEvent(input$hint, {
@@ -223,6 +244,7 @@ server <- function(input, output, session) {
                        type = "error")
       return()
     }
+    push_history()
     g <- grid()
     # Find the first segment that should be drawn (1) but is currently empty (0)
     for (i in seq_len(nrow(solution$seg_h))) {
@@ -261,6 +283,7 @@ server <- function(input, output, session) {
         type = "error"
       )
     } else {
+      clear_history()
       grid(g)
     }
   })
@@ -270,6 +293,7 @@ server <- function(input, output, session) {
     if (is.null(solution)) {
       showNotification("No solution found for this puzzle.", type = "error")
     } else {
+      push_history()
       grid(solution)
     }
   })
@@ -277,8 +301,10 @@ server <- function(input, output, session) {
   observeEvent(input$grid_click, {
     g <- grid()
     seg <- find_nearest_segment(g, input$grid_click$x, input$grid_click$y)
-    if (!is.null(seg))
+    if (!is.null(seg)) {
+      push_history()
       grid(toggle_segment(g, seg$type, seg$i, seg$j))
+    }
   })
 
   output$grid_plot <- renderPlot({
