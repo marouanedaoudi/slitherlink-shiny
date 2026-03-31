@@ -70,6 +70,7 @@ toggle_segment <- function(grid, type, i, j) {
 #' @param x An object of class 'slitherlink_grid'.
 #' @param ... Additional arguments (unused).
 #' @export
+#' @keywords internal
 print.slitherlink_grid <- function(x, ...) {
   cat("Slitherlink Grid (", x$n, "x", x$m, ")\n\n", sep = "")
 

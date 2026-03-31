@@ -1,0 +1,45 @@
+url: https://marouanedaoudi.github.io/slitherlink-shiny/
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+home:
+  title: "slitherlinkshiny — Interactive Slitherlink Puzzle"
+  description: >
+    An R package for playing and solving Slitherlink logic puzzles,
+    with an interactive Shiny application.
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [github]
+
+reference:
+  - title: "Grid"
+    desc: "Create and manipulate puzzle grids."
+    contents:
+      - init_grid
+      - toggle_segment
+  - title: "Puzzles"
+    desc: "Built-in puzzle library."
+    contents:
+      - list_puzzles
+      - get_puzzle
+  - title: "Validation"
+    desc: "Check constraints and loop topology."
+    contents:
+      - check_clues
+      - check_loop
+      - is_solved
+  - title: "Solver"
+    desc: "Automatic puzzle solver."
+    contents:
+      - solve_grid
+  - title: "Random puzzle"
+    desc: "Generate random solvable puzzles."
+    contents:
+      - random_puzzle
+  - title: "Shiny app"
+    desc: "Launch the interactive application."
+    contents:
+      - run_app
