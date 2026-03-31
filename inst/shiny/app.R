@@ -9,7 +9,7 @@ draw_grid <- function(grid) {
   n <- grid$n
   m <- grid$m
 
-  par(mar = c(1, 1, 2, 1), bg = "#f8f8f8")
+  par(mar = c(1, 1, 1, 1), bg = "#ffffff")
   plot(
     NULL,
     xlim = c(0.5, m + 1.5), ylim = c(0.5, n + 1.5),
@@ -142,67 +142,120 @@ puzzle_choices <- setNames(
 
 ui <- fluidPage(
   tags$head(tags$style(HTML("
-    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #f0f2f5;
+    }
+    .well {
+      background-color: #ffffff;
+      border: 1px solid #dde1e7;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .section-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 1px; color: #aaa;
+      text-transform: uppercase;
+      margin: 14px 0 6px 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .btn { border-radius: 5px; font-size: 13px; }
+    .btn-block + .btn-block { margin-top: 5px; }
     #status_box {
-      font-size: 16px; font-weight: bold; padding: 10px;
-      border-radius: 6px; text-align: center; margin-top: 10px;
+      font-size: 14px; font-weight: 600;
+      padding: 8px 16px; border-radius: 6px;
+      text-align: center; margin-top: 10px;
+      display: inline-block;
     }
     .status-progress  { background: #e8f0fe; color: #1a56cc; }
     .status-violation { background: #fde8e8; color: #cc1a1a; }
     .status-solved    { background: #e8fde8; color: #1a7a1a; }
     #timer_display {
-      font-size: 22px; font-weight: bold; text-align: center;
-      letter-spacing: 2px; margin: 6px 0;
+      font-size: 30px; font-weight: 700;
+      letter-spacing: 4px; margin-bottom: 6px;
       font-family: 'Courier New', monospace;
+    }
+    .grid-wrap {
+      display: flex; flex-direction: column;
+      align-items: center; padding-top: 6px;
+    }
+    .grid-box {
+      background: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.09);
+      padding: 6px;
+    }
+    .help-text {
+      font-size: 11px; color: #aaa; margin-top: 14px;
+      line-height: 1.6;
     }
   "))),
 
-  titlePanel("Slitherlink"),
+  titlePanel(
+    div(
+      tags$span("Slitherlink",
+        style = "font-size:22px; font-weight:700; color:#222;"),
+      tags$span(" \u2014 Draw a single closed loop",
+        style = "font-size:13px; color:#999; margin-left:6px;")
+    )
+  ),
 
   sidebarLayout(
     sidebarPanel(
       width = 3,
-      selectInput("puzzle_name", "Select puzzle", choices = puzzle_choices),
-      actionButton("new_game", "New Game",  class = "btn-primary btn-block"),
-      br(),
-      actionButton("reset",    "Reset",     class = "btn-warning btn-block"),
-      br(),
-      actionButton("solve",    "Solve",     class = "btn-info    btn-block"),
-      br(),
-      actionButton("hint",     "Hint",      class = "btn-default btn-block"),
-      br(),
-      actionButton("undo",     "Undo",      class = "btn-default btn-block"),
-      hr(),
-      tags$strong("Random Puzzle"),
+
+      div(class = "section-label", "Puzzle"),
+      selectInput("puzzle_name", NULL, choices = puzzle_choices),
+      fluidRow(
+        column(6, actionButton("new_game", "New Game",
+                               class = "btn-primary btn-block")),
+        column(6, actionButton("reset",    "Reset",
+                               class = "btn-warning btn-block"))
+      ),
+
+      div(class = "section-label", "Assist"),
+      actionButton("solve", "Solve", class = "btn-info btn-block"),
+      fluidRow(
+        column(6, actionButton("hint", "Hint",
+                               class = "btn-default btn-block")),
+        column(6, actionButton("undo", "Undo",
+                               class = "btn-default btn-block"))
+      ),
+
+      div(class = "section-label", "Random"),
       fluidRow(
         column(6, numericInput("rand_n", "Rows", value = 5L,
                                min = 2L, max = 10L, step = 1L)),
         column(6, numericInput("rand_m", "Cols", value = 5L,
                                min = 2L, max = 10L, step = 1L))
       ),
-      actionButton("random_puzzle", "Generate Random",
+      actionButton("random_puzzle", "Generate",
                    class = "btn-success btn-block"),
-      hr(),
-      uiOutput("status_box"),
-      uiOutput("timer_display"),
-      hr(),
-      helpText(
-        "Click near a segment to cycle it:",
+
+      div(class = "help-text",
+        "Click a segment to cycle:",
         tags$ul(
-          tags$li("Empty → drawn (black)"),
-          tags$li("Drawn → crossed (red ×)"),
-          tags$li("Crossed → empty")
+          style = "padding-left:14px; margin:3px 0 0 0;",
+          tags$li("Empty \u2192 drawn"),
+          tags$li("Drawn \u2192 crossed \u00d7"),
+          tags$li("Crossed \u2192 empty")
         )
       )
     ),
 
     mainPanel(
       width = 9,
-      plotOutput(
-        "grid_plot",
-        click  = "grid_click",
-        width  = "520px",
-        height = "520px"
+      div(class = "grid-wrap",
+        uiOutput("timer_display"),
+        div(class = "grid-box",
+          plotOutput(
+            "grid_plot",
+            click  = "grid_click",
+            width  = "520px",
+            height = "520px"
+          )
+        ),
+        uiOutput("status_box")
       )
     )
   )
@@ -343,7 +396,7 @@ server <- function(input, output, session) {
 
   output$grid_plot <- renderPlot({
     draw_grid(grid())
-  }, bg = "#f8f8f8")
+  }, bg = "#ffffff")
 
   output$timer_display <- renderUI({
     s <- timer_start()
