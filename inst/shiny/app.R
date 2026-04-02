@@ -173,8 +173,12 @@ ui <- fluidPage(
     .status-solved    { background: #e8fde8; color: #1a7a1a; }
     #timer_display {
       font-size: 30px; font-weight: 700;
-      letter-spacing: 4px; margin-bottom: 6px;
+      letter-spacing: 4px; margin-bottom: 2px;
       font-family: 'Courier New', monospace;
+    }
+    #puzzle_label {
+      font-size: 11px; color: #aaa; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 8px;
     }
     .grid-wrap {
       display: flex; flex-direction: column;
@@ -251,6 +255,7 @@ ui <- fluidPage(
       width = 9,
       div(class = "grid-wrap",
         uiOutput("timer_display"),
+        uiOutput("puzzle_label"),
         div(class = "grid-box",
           plotOutput(
             "grid_plot",
@@ -270,8 +275,9 @@ ui <- fluidPage(
 # ---------------------------------------------------------------------------
 
 server <- function(input, output, session) {
-  grid    <- reactiveVal(get_puzzle("easy_3x3"))
-  history <- reactiveVal(list())   # stack of previous grid states
+  grid               <- reactiveVal(get_puzzle("easy_3x3"))
+  history            <- reactiveVal(list())   # stack of previous grid states
+  current_puzzle_key <- reactiveVal("easy_3x3")
 
   # Timer: NULL = idle, POSIXct = start time, NA = stopped
   timer_start   <- reactiveVal(NULL)
@@ -304,12 +310,14 @@ server <- function(input, output, session) {
   observeEvent(input$new_game, {
     clear_history()
     reset_timer()
+    current_puzzle_key(input$puzzle_name)
     grid(get_puzzle(input$puzzle_name))
   })
 
   observeEvent(input$reset, {
     clear_history()
     reset_timer()
+    current_puzzle_key(input$puzzle_name)
     grid(get_puzzle(input$puzzle_name))
   })
 
@@ -373,6 +381,7 @@ server <- function(input, output, session) {
     } else {
       clear_history()
       reset_timer()
+      current_puzzle_key(paste0("random_", n, "x", m))
       grid(g)
     }
   })
@@ -421,6 +430,21 @@ server <- function(input, output, session) {
     lbl <- sprintf("%02d:%02d", mm, ss)
     col <- if (!is.null(s) && is.na(s)) "#1a7a1a" else "#555555"
     div(id = "timer_display", style = paste0("color:", col, ";"), lbl)
+  })
+
+  output$puzzle_label <- renderUI({
+    key <- current_puzzle_key()
+    if (grepl("^random_", key)) {
+      size <- sub("^random_", "", key)
+      lbl  <- paste0("Random \u2014 ", size)
+    } else {
+      info <- list_puzzles()
+      row  <- info[info$name == key, ]
+      lbl  <- if (nrow(row) == 1L)
+        paste0(tools::toTitleCase(row$difficulty), " \u2014 ", row$size)
+      else key
+    }
+    div(id = "puzzle_label", lbl)
   })
 
   output$status_box <- renderUI({
