@@ -180,6 +180,10 @@ ui <- fluidPage(
       font-size: 11px; color: #aaa; letter-spacing: 1px;
       text-transform: uppercase; margin-bottom: 8px;
     }
+    #best_time {
+      font-size: 11px; color: #888; margin-top: 2px;
+    }
+    #best_time span { color: #1a7a1a; font-weight: 600; }
     .grid-wrap {
       display: flex; flex-direction: column;
       align-items: center; padding-top: 6px;
@@ -264,7 +268,8 @@ ui <- fluidPage(
             height = "520px"
           )
         ),
-        uiOutput("status_box")
+        uiOutput("status_box"),
+        uiOutput("best_time")
       )
     )
   )
@@ -278,6 +283,7 @@ server <- function(input, output, session) {
   grid               <- reactiveVal(get_puzzle("easy_3x3"))
   history            <- reactiveVal(list())   # stack of previous grid states
   current_puzzle_key <- reactiveVal("easy_3x3")
+  best_times         <- reactiveVal(list())   # named list: key -> best seconds
 
   # Timer: NULL = idle, POSIXct = start time, NA = stopped
   timer_start   <- reactiveVal(NULL)
@@ -298,6 +304,17 @@ server <- function(input, output, session) {
     if (!is.null(s) && !is.na(s)) {
       timer_elapsed(as.integer(difftime(Sys.time(), s, units = "secs")))
       timer_start(NA)   # sentinel: timer frozen
+    }
+  }
+
+  record_best_time <- function() {
+    secs <- timer_elapsed()
+    if (secs == 0L) return()
+    key <- current_puzzle_key()
+    bt  <- best_times()
+    if (is.null(bt[[key]]) || secs < bt[[key]]) {
+      bt[[key]] <- secs
+      best_times(bt)
     }
   }
 
@@ -394,6 +411,7 @@ server <- function(input, output, session) {
       push_history()
       grid(solution)
       stop_timer()
+      record_best_time()
     }
   })
 
@@ -404,7 +422,10 @@ server <- function(input, output, session) {
       start_timer()
       push_history()
       new_g <- toggle_segment(g, seg$type, seg$i, seg$j)
-      if (is_solved(new_g)) stop_timer()
+      if (is_solved(new_g)) {
+        stop_timer()
+        record_best_time()
+      }
       grid(new_g)
     }
   })
@@ -430,6 +451,17 @@ server <- function(input, output, session) {
     lbl <- sprintf("%02d:%02d", mm, ss)
     col <- if (!is.null(s) && is.na(s)) "#1a7a1a" else "#555555"
     div(id = "timer_display", style = paste0("color:", col, ";"), lbl)
+  })
+
+  output$best_time <- renderUI({
+    key  <- current_puzzle_key()
+    best <- best_times()[[key]]
+    if (is.null(best)) return(NULL)
+    mm  <- best %/% 60L
+    ss  <- best %%  60L
+    div(id = "best_time",
+      "Best: ", tags$span(sprintf("%02d:%02d", mm, ss))
+    )
   })
 
   output$puzzle_label <- renderUI({
