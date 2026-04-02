@@ -179,12 +179,16 @@ ui <- fluidPage(
     .grid-wrap {
       display: flex; flex-direction: column;
       align-items: center; padding-top: 6px;
+      width: 100%;
     }
     .grid-box {
       background: #ffffff; border-radius: 8px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.09);
       padding: 6px;
+      width: 100%; max-width: 532px;
+      box-sizing: border-box;
     }
+    #grid_plot img { width: 100% !important; height: auto !important; }
     .help-text {
       font-size: 11px; color: #aaa; margin-top: 14px;
       line-height: 1.6;
@@ -251,7 +255,7 @@ ui <- fluidPage(
           plotOutput(
             "grid_plot",
             click  = "grid_click",
-            width  = "520px",
+            width  = "100%",
             height = "520px"
           )
         ),
