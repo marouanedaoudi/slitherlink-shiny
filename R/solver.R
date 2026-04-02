@@ -246,6 +246,60 @@ propagate <- function(grid) {
   list(grid = grid, contradiction = FALSE)
 }
 
+# ------ Segment selection: MRV heuristic ------------------
+
+# Pick the undecided segment adjacent to the most constrained cell.
+# "Most constrained" = smallest slack (free edges minus remaining needed).
+# Falls back to the first free segment when no clueed cell has free edges.
+pick_segment <- function(grid) {
+  n <- grid$n
+  m <- grid$m
+
+  best_seg   <- NULL
+  best_slack <- Inf
+
+  for (i in seq_len(n)) {
+    for (j in seq_len(m)) {
+      clue <- grid$clues[i, j]
+      if (is.na(clue)) next
+
+      edges   <- cell_edges(i, j)
+      drawn   <- sum(vapply(edges, function(e) get_seg(grid, e) ==  1L, logical(1L)))
+      crossed <- sum(vapply(edges, function(e) get_seg(grid, e) == -1L, logical(1L)))
+      free    <- 4L - drawn - crossed
+
+      if (free == 0L) next
+
+      slack <- free - (clue - drawn)
+      if (slack < best_slack) {
+        for (e in edges) {
+          if (get_seg(grid, e) == 0L) {
+            best_slack <- slack
+            best_seg   <- e
+            break
+          }
+        }
+      }
+    }
+  }
+
+  if (!is.null(best_seg)) return(best_seg)
+
+  for (i in seq_len(nrow(grid$seg_h))) {
+    for (j in seq_len(ncol(grid$seg_h))) {
+      if (grid$seg_h[i, j] == 0L)
+        return(list(mat = "h", row = i, col = j))
+    }
+  }
+  for (i in seq_len(nrow(grid$seg_v))) {
+    for (j in seq_len(ncol(grid$seg_v))) {
+      if (grid$seg_v[i, j] == 0L)
+        return(list(mat = "v", row = i, col = j))
+    }
+  }
+  NULL
+}
+
 # ------ Backtracking search --------------------------------
 
 # Internal recursive backtracker.
@@ -259,29 +313,7 @@ backtrack <- function(grid) {
   # Check if already solved
   if (is_solved(grid)) return(grid)
 
-  # Pick the first undecided segment (value == 0)
-  # Try horizontal segments first, then vertical
-  chosen <- NULL
-  for (i in seq_len(nrow(grid$seg_h))) {
-    for (j in seq_len(ncol(grid$seg_h))) {
-      if (grid$seg_h[i, j] == 0L) {
-        chosen <- list(mat = "h", row = i, col = j)
-        break
-      }
-    }
-    if (!is.null(chosen)) break
-  }
-  if (is.null(chosen)) {
-    for (i in seq_len(nrow(grid$seg_v))) {
-      for (j in seq_len(ncol(grid$seg_v))) {
-        if (grid$seg_v[i, j] == 0L) {
-          chosen <- list(mat = "v", row = i, col = j)
-          break
-        }
-      }
-      if (!is.null(chosen)) break
-    }
-  }
+  chosen <- pick_segment(grid)
 
   # All segments decided but not solved (shouldn't happen after propagation
   # without contradiction, but guard anyway)
