@@ -379,6 +379,7 @@ server <- function(input, output, session) {
     } else {
       push_history()
       grid(solution)
+      stop_timer()
     }
   })
 
