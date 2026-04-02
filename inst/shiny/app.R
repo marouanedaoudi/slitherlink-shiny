@@ -327,28 +327,29 @@ server <- function(input, output, session) {
                        type = "error")
       return()
     }
-    push_history()
     g <- grid()
-    # Find the first segment that should be drawn (1) but is currently empty (0)
+    candidates <- list()
     for (i in seq_len(nrow(solution$seg_h))) {
       for (j in seq_len(ncol(solution$seg_h))) {
-        if (solution$seg_h[i, j] == 1L && g$seg_h[i, j] == 0L) {
-          g$seg_h[i, j] <- 1L
-          grid(g)
-          return()
-        }
+        if (solution$seg_h[i, j] == 1L && g$seg_h[i, j] == 0L)
+          candidates <- c(candidates, list(list(mat = "h", i = i, j = j)))
       }
     }
     for (i in seq_len(nrow(solution$seg_v))) {
       for (j in seq_len(ncol(solution$seg_v))) {
-        if (solution$seg_v[i, j] == 1L && g$seg_v[i, j] == 0L) {
-          g$seg_v[i, j] <- 1L
-          grid(g)
-          return()
-        }
+        if (solution$seg_v[i, j] == 1L && g$seg_v[i, j] == 0L)
+          candidates <- c(candidates, list(list(mat = "v", i = i, j = j)))
       }
     }
-    showNotification("No hint available.", type = "message")
+    if (length(candidates) == 0L) {
+      showNotification("No hint available.", type = "message")
+      return()
+    }
+    push_history()
+    pick <- candidates[[sample(length(candidates), 1L)]]
+    if (pick$mat == "h") g$seg_h[pick$i, pick$j] <- 1L
+    else                 g$seg_v[pick$i, pick$j] <- 1L
+    grid(g)
   })
 
   observeEvent(input$random_puzzle, {
