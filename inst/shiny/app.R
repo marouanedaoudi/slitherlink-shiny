@@ -142,74 +142,134 @@ puzzle_choices <- setNames(
 
 ui <- fluidPage(
   tags$head(tags$style(HTML("
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background-color: #f0f2f5;
+      font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #f5f6fa;
+      color: #1a1d23;
     }
+    h2 { margin-bottom: 0; }
+
+    /* Sidebar */
     .well {
-      background-color: #ffffff;
-      border: 1px solid #dde1e7;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      background: linear-gradient(160deg, #1e2235 0%, #252a3d 100%);
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+      color: #e0e3ef;
+      padding: 20px 16px;
     }
     .section-label {
-      font-size: 10px; font-weight: 700;
-      letter-spacing: 1px; color: #aaa;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 1.5px; color: #5a6080;
       text-transform: uppercase;
-      margin: 14px 0 6px 0;
-      padding-bottom: 5px;
-      border-bottom: 1px solid #f0f0f0;
+      margin: 18px 0 7px 0;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #2e3450;
     }
-    .btn { border-radius: 5px; font-size: 13px; }
+    .section-label:first-child { margin-top: 4px; }
+
+    /* Select */
+    .well .selectize-input {
+      background: #2e3450; border: 1px solid #3a4060;
+      border-radius: 7px; color: #d0d4e8; font-size: 13px;
+      box-shadow: none;
+    }
+    .well .selectize-input.focus { border-color: #5b7fff; }
+    .well .selectize-dropdown {
+      background: #2e3450; border: 1px solid #3a4060;
+      border-radius: 7px; color: #d0d4e8;
+    }
+    .well .selectize-dropdown-content .option:hover { background: #3a4570; }
+
+    /* Buttons */
+    .btn {
+      border-radius: 7px; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.3px; border: none;
+      transition: filter 0.15s, transform 0.1s;
+    }
+    .btn:hover  { filter: brightness(1.12); }
+    .btn:active { transform: scale(0.97); }
     .btn-block + .btn-block { margin-top: 5px; }
-    #status_box {
-      font-size: 14px; font-weight: 600;
-      padding: 8px 16px; border-radius: 6px;
-      text-align: center; margin-top: 10px;
-      display: inline-block;
+
+    .btn-primary  { background: #4c6ef5; color: #fff; }
+    .btn-warning  { background: #f5a623; color: #fff; }
+    .btn-info     { background: #20b2aa; color: #fff; }
+    .btn-default  { background: #3a4060; color: #d0d4e8; }
+    .btn-success  { background: #2ecc71; color: #fff; }
+
+    /* Numeric inputs in sidebar */
+    .well .form-control {
+      background: #2e3450; border: 1px solid #3a4060;
+      border-radius: 7px; color: #d0d4e8; font-size: 13px;
     }
-    .status-progress  { background: #e8f0fe; color: #1a56cc; }
-    .status-violation { background: #fde8e8; color: #cc1a1a; }
-    .status-solved    { background: #e8fde8; color: #1a7a1a; }
+    .well label { color: #8892b0; font-size: 11px; font-weight: 500; }
+
+    /* Status pill */
+    #status_box {
+      font-size: 13px; font-weight: 600;
+      padding: 7px 18px; border-radius: 20px;
+      text-align: center; margin-top: 12px;
+      display: inline-block; letter-spacing: 0.2px;
+    }
+    .status-progress  { background: #eef1ff; color: #3d5af1; }
+    .status-violation { background: #fff0f0; color: #d63031; }
+    .status-solved    {
+      background: linear-gradient(135deg, #d4edda, #c3fae8);
+      color: #1a7a4a; box-shadow: 0 2px 10px rgba(26,122,74,0.2);
+    }
+
+    /* Timer */
     #timer_display {
-      font-size: 30px; font-weight: 700;
-      letter-spacing: 4px; margin-bottom: 2px;
+      font-size: 38px; font-weight: 700;
+      letter-spacing: 6px; margin-bottom: 2px;
       font-family: 'Courier New', monospace;
+      color: #1a1d23;
     }
     #puzzle_label {
-      font-size: 11px; color: #aaa; letter-spacing: 1px;
-      text-transform: uppercase; margin-bottom: 8px;
+      font-size: 10px; color: #9aa0b8; letter-spacing: 1.2px;
+      text-transform: uppercase; margin-bottom: 10px;
     }
     #best_time {
-      font-size: 11px; color: #888; margin-top: 2px;
+      font-size: 11px; color: #9aa0b8; margin-top: 4px;
     }
-    #best_time span { color: #1a7a1a; font-weight: 600; }
+    #best_time span { color: #1a7a4a; font-weight: 700; }
+
+    /* Grid area */
     .grid-wrap {
       display: flex; flex-direction: column;
-      align-items: center; padding-top: 6px;
+      align-items: center; padding-top: 8px;
       width: 100%;
     }
     .grid-box {
-      background: #ffffff; border-radius: 8px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.09);
-      padding: 6px;
-      width: 100%; max-width: 532px;
+      background: #ffffff; border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 8px;
+      width: 100%; max-width: 536px;
       box-sizing: border-box;
     }
     #grid_plot img { width: 100% !important; height: auto !important; }
+
+    /* Help text */
     .help-text {
-      font-size: 11px; color: #aaa; margin-top: 14px;
-      line-height: 1.6;
+      font-size: 11px; color: #5a6080; margin-top: 16px;
+      line-height: 1.7;
     }
+    .help-text ul { padding-left: 14px; margin: 3px 0 0 0; }
   "))),
 
-  titlePanel(
-    div(
-      tags$span("Slitherlink",
-        style = "font-size:22px; font-weight:700; color:#222;"),
-      tags$span(" \u2014 Draw a single closed loop",
-        style = "font-size:13px; color:#999; margin-left:6px;")
-    )
+  tags$div(
+    style = paste0(
+      "padding: 14px 20px 8px 20px;",
+      "background: #fff;",
+      "border-bottom: 1px solid #e8eaf0;",
+      "margin-bottom: 18px;"
+    ),
+    tags$span("Slitherlink",
+      style = "font-size:20px; font-weight:700; color:#1a1d23; letter-spacing:-0.3px;"),
+    tags$span(" \u2014 Draw a single closed loop",
+      style = "font-size:12px; color:#9aa0b8; margin-left:8px; font-weight:500;")
   ),
 
   sidebarLayout(
