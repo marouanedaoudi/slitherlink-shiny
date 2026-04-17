@@ -145,7 +145,7 @@ R/
   random_puzzle.R # random_puzzle()
   app.R           # run_app()
 inst/shiny/app.R  # Shiny application
-tests/testthat/   # 77 tests
+tests/testthat/   # 86 tests
 vignettes/        # Introduction vignette
 ```
 
