@@ -192,6 +192,60 @@ is.null(solve_grid(impossible))
 
 ---
 
+## How the solver works
+
+`solve_grid()` combines two classical techniques from constraint programming.
+
+### Constraint propagation
+
+Before any branching, the solver applies deduction rules exhaustively until
+no further progress can be made (fixpoint).
+
+**Cell rules** — for every cell with a clue $c$, let $d$ = drawn edges and
+$f$ = free edges:
+
+- If $d = c$: all $f$ remaining free edges must be crossed (the clue is
+  already satisfied).
+- If $d + f = c$: all $f$ free edges must be drawn (every remaining edge is
+  needed).
+
+**Node rules** — for every grid intersection:
+
+- A node with two drawn edges already has its required degree; all remaining
+  free edges at that node are crossed.
+- A node with one drawn edge and exactly one free edge left must use that
+  edge (a valid loop requires degree 0 or 2 at every node).
+
+The engine also detects three types of contradiction that prove a partial
+assignment cannot lead to a solution: a clue is exceeded, a node reaches
+degree > 2, or a sub-loop closes prematurely (a connected component of
+drawn edges already forms a cycle but not all drawn edges are part of it).
+
+Propagation repeats until neither `seg_h` nor `seg_v` changes, or a
+contradiction is found.
+
+### Backtracking with MRV heuristic
+
+When propagation stalls on an undecided segment, the solver branches: it
+tries drawing the segment, then crossing it, recursively.
+
+Rather than picking the first undecided segment, it uses the **Minimum
+Remaining Values (MRV)** heuristic: the chosen segment is adjacent to the
+cell with the smallest *slack* (free edges minus remaining edges still
+needed). Branching on the most constrained cell reduces the search tree
+significantly.
+
+### Uniqueness verification
+
+`random_puzzle()` calls an internal `count_solutions()` function that
+counts distinct solutions up to a given limit and stops as soon as the
+limit is reached.  Any candidate grid that admits two or more solutions is
+discarded, and the generation loop retries with a new random region.  This
+guarantees that every puzzle returned by `random_puzzle()` has exactly one
+solution.
+
+---
+
 ## Interactive Shiny app
 
 The package includes a full interactive web application.
