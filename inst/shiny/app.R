@@ -403,6 +403,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$hint, {
     if (is_solved(grid())) return()
+    start_timer()
     solution <- solve_grid(grid())
     if (is.null(solution)) {
       showNotification("No solution found — cannot give a hint.",
