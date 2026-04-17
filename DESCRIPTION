@@ -1,6 +1,6 @@
 Package: slitherlinkshiny
 Title: Interactive Web Application for the Slitherlink Puzzle
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person("Marouane", "Daoudi", , "marouane.daoudi@etu.umontpellier.fr", role = c("aut", "cre"))
 Description: Implementation of the Slitherlink logic puzzle. This package provides a mathematical engine to model the grids and validate topological rules, as well as an interactive web interface developed with Shiny.
