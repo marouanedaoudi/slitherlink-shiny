@@ -55,6 +55,64 @@ PUZZLES <- list(
         2, 2, 1, 0, 0),
       nrow = 5, byrow = TRUE
     )
+  ),
+
+  easy_4x4 = list(
+    difficulty = "easy",
+    size       = "4x4",
+    verified   = TRUE,
+    clues      = matrix(
+      c(0, 0, 0, 0,
+        1, 1, 1, 0,
+        2, 1, 3, 1,
+        2, 2, 2, 0),
+      nrow = 4, byrow = TRUE
+    )
+  ),
+
+  medium_5x6 = list(
+    difficulty = "medium",
+    size       = "5x6",
+    verified   = TRUE,
+    clues      = matrix(
+      c(0, 0, 1, 2, 2, 2,
+        0, 1, 2, 1, 0, 1,
+        0, 1, 2, 0, 0, 1,
+        0, 0, 2, 1, 0, 1,
+        0, 0, 1, 2, 1, 2),
+      nrow = 5, byrow = TRUE
+    )
+  ),
+
+  hard_6x6 = list(
+    difficulty = "hard",
+    size       = "6x6",
+    verified   = TRUE,
+    clues      = matrix(
+      c(2, 1, 1, 1, 2, 2,
+        1, 0, 0, 0, 0, 2,
+        1, 0, 1, 1, 0, 1,
+        1, 1, 2, 2, 2, 2,
+        1, 2, 1, 0, 1, 1,
+        3, 2, 0, 0, 0, 0),
+      nrow = 6, byrow = TRUE
+    )
+  ),
+
+  hard_7x7 = list(
+    difficulty = "hard",
+    size       = "7x7",
+    verified   = TRUE,
+    clues      = matrix(
+      c(3, 1, 1, 1, 2, 2, 1,
+        2, 2, 0, 0, 0, 1, 3,
+        0, 2, 2, 0, 0, 1, 3,
+        0, 0, 2, 1, 0, 0, 2,
+        0, 0, 2, 1, 0, 0, 2,
+        0, 1, 3, 0, 0, 2, 2,
+        0, 0, 2, 2, 2, 2, 0),
+      nrow = 7, byrow = TRUE
+    )
   )
 )
 
