@@ -56,7 +56,7 @@ Features:
 
 - Click near any segment to cycle its state: empty → drawn → crossed → empty
 - Status indicator shows *In progress*, *Constraint violated*, or *Puzzle solved!*
-- MM:SS timer starts on the first click and freezes when the puzzle is solved
+- MM:SS timer starts on the first move or hint and freezes when the puzzle is solved
 
 ---
 
@@ -125,8 +125,12 @@ Segment values: `0` = empty, `1` = drawn, `-1` = crossed.
 | Name | Difficulty | Size |
 |---|---|---|
 | `easy_3x3` | Easy | 3×3 |
+| `easy_4x4` | Easy | 4×4 |
 | `medium_4x4` | Medium | 4×4 |
+| `medium_5x6` | Medium | 5×6 |
 | `hard_5x5` | Hard | 5×5 |
+| `hard_6x6` | Hard | 6×6 |
+| `hard_7x7` | Hard | 7×7 |
 
 ---
 
@@ -141,7 +145,7 @@ R/
   random_puzzle.R # random_puzzle()
   app.R           # run_app()
 inst/shiny/app.R  # Shiny application
-tests/testthat/   # 72 tests
+tests/testthat/   # 77 tests
 vignettes/        # Introduction vignette
 ```
 
