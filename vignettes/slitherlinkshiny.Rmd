@@ -80,7 +80,7 @@ print(g)
 
 ## Predefined puzzles
 
-The package ships with three ready-to-play puzzles.
+The package ships with seven ready-to-play puzzles spanning three difficulty levels.
 
 ```{r puzzles}
 list_puzzles()
@@ -174,7 +174,7 @@ print(sol)
 is_solved(sol)
 ```
 
-The solver works on all three built-in puzzles:
+The solver works on all built-in puzzles:
 
 ```{r solve_all}
 for (nm in list_puzzles()$name) {
