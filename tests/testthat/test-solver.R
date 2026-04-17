@@ -30,6 +30,34 @@ test_that("solve_grid: unsolvable puzzle returns NULL", {
   expect_null(solve_grid(g))
 })
 
+test_that("solve_grid: easy_4x4 returns a solved grid", {
+  g <- get_puzzle("easy_4x4")
+  sol <- solve_grid(g)
+  expect_false(is.null(sol))
+  expect_true(is_solved(sol))
+})
+
+test_that("solve_grid: medium_5x6 returns a solved grid", {
+  g <- get_puzzle("medium_5x6")
+  sol <- solve_grid(g)
+  expect_false(is.null(sol))
+  expect_true(is_solved(sol))
+})
+
+test_that("solve_grid: hard_6x6 returns a solved grid", {
+  g <- get_puzzle("hard_6x6")
+  sol <- solve_grid(g)
+  expect_false(is.null(sol))
+  expect_true(is_solved(sol))
+})
+
+test_that("solve_grid: hard_7x7 returns a solved grid", {
+  g <- get_puzzle("hard_7x7")
+  sol <- solve_grid(g)
+  expect_false(is.null(sol))
+  expect_true(is_solved(sol))
+})
+
 test_that("solve_grid: already-solved grid is returned unchanged", {
   g <- solve_grid(get_puzzle("easy_3x3"))
   sol <- solve_grid(g)
