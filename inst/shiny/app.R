@@ -142,134 +142,127 @@ puzzle_choices <- setNames(
 
 ui <- fluidPage(
   tags$head(tags$style(HTML("
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
     body {
-      font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background-color: #f5f6fa;
-      color: #1a1d23;
+      font-family: Georgia, 'Times New Roman', serif;
+      background-color: #fafaf8;
+      color: #1c1c1c;
     }
-    h2 { margin-bottom: 0; }
 
     /* Sidebar */
     .well {
-      background: linear-gradient(160deg, #1e2235 0%, #252a3d 100%);
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
-      color: #e0e3ef;
-      padding: 20px 16px;
+      background: #ffffff;
+      border: 1px solid #d8d4cc;
+      border-radius: 3px;
+      box-shadow: none;
+      padding: 18px 16px;
     }
     .section-label {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 9px; font-weight: 700;
-      letter-spacing: 1.5px; color: #5a6080;
+      letter-spacing: 1.4px; color: #888;
       text-transform: uppercase;
-      margin: 18px 0 7px 0;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #2e3450;
+      margin: 20px 0 8px 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e8e4dc;
     }
-    .section-label:first-child { margin-top: 4px; }
+    .section-label:first-child { margin-top: 0; }
 
-    /* Select */
-    .well .selectize-input {
-      background: #2e3450; border: 1px solid #3a4060;
-      border-radius: 7px; color: #d0d4e8; font-size: 13px;
-      box-shadow: none;
+    /* Inputs */
+    .selectize-input {
+      border: 1px solid #c8c4bc; border-radius: 2px;
+      box-shadow: none; font-size: 13px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
-    .well .selectize-input.focus { border-color: #5b7fff; }
-    .well .selectize-dropdown {
-      background: #2e3450; border: 1px solid #3a4060;
-      border-radius: 7px; color: #d0d4e8;
+    .selectize-input.focus { border-color: #666; box-shadow: none; }
+    .selectize-dropdown { border: 1px solid #c8c4bc; border-radius: 2px; font-size: 13px; }
+    .form-control {
+      border: 1px solid #c8c4bc; border-radius: 2px;
+      box-shadow: none; font-size: 13px;
     }
-    .well .selectize-dropdown-content .option:hover { background: #3a4570; }
+    .form-control:focus { border-color: #666; box-shadow: none; }
+    label {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11px; color: #555; font-weight: 400;
+    }
 
-    /* Buttons */
+    /* Buttons — all unified, no color circus */
     .btn {
-      border-radius: 7px; font-size: 12px; font-weight: 600;
-      letter-spacing: 0.3px; border: none;
-      transition: filter 0.15s, transform 0.1s;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 12px; font-weight: 500;
+      border-radius: 2px;
+      border: 1px solid #b0aca4;
+      background: #f4f2ee; color: #2c2c2c;
+      box-shadow: none;
+      transition: background 0.12s;
     }
-    .btn:hover  { filter: brightness(1.12); }
-    .btn:active { transform: scale(0.97); }
+    .btn:hover  { background: #e8e4dc; color: #1c1c1c; }
+    .btn:active { background: #dedad2; }
+    .btn-primary { background: #2c2c2c; color: #fafaf8; border-color: #2c2c2c; }
+    .btn-primary:hover { background: #444; color: #fff; border-color: #444; }
     .btn-block + .btn-block { margin-top: 5px; }
 
-    .btn-primary  { background: #4c6ef5; color: #fff; }
-    .btn-warning  { background: #f5a623; color: #fff; }
-    .btn-info     { background: #20b2aa; color: #fff; }
-    .btn-default  { background: #3a4060; color: #d0d4e8; }
-    .btn-success  { background: #2ecc71; color: #fff; }
-
-    /* Numeric inputs in sidebar */
-    .well .form-control {
-      background: #2e3450; border: 1px solid #3a4060;
-      border-radius: 7px; color: #d0d4e8; font-size: 13px;
-    }
-    .well label { color: #8892b0; font-size: 11px; font-weight: 500; }
-
-    /* Status pill */
+    /* Status line */
     #status_box {
-      font-size: 13px; font-weight: 600;
-      padding: 7px 18px; border-radius: 20px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 12px; font-weight: 500;
+      padding: 5px 14px; border-radius: 2px;
       text-align: center; margin-top: 12px;
-      display: inline-block; letter-spacing: 0.2px;
+      display: inline-block;
+      border: 1px solid;
     }
-    .status-progress  { background: #eef1ff; color: #3d5af1; }
-    .status-violation { background: #fff0f0; color: #d63031; }
-    .status-solved    {
-      background: linear-gradient(135deg, #d4edda, #c3fae8);
-      color: #1a7a4a; box-shadow: 0 2px 10px rgba(26,122,74,0.2);
-    }
+    .status-progress  { background: #f4f2ee; color: #555; border-color: #c8c4bc; }
+    .status-violation { background: #fdf4f4; color: #8b0000; border-color: #d4b0b0; }
+    .status-solved    { background: #f4faf4; color: #1a5c1a; border-color: #a8c8a8; }
 
     /* Timer */
     #timer_display {
-      font-size: 38px; font-weight: 700;
-      letter-spacing: 6px; margin-bottom: 2px;
+      font-size: 34px; font-weight: 400;
+      letter-spacing: 5px; margin-bottom: 2px;
       font-family: 'Courier New', monospace;
-      color: #1a1d23;
+      color: #2c2c2c;
     }
     #puzzle_label {
-      font-size: 10px; color: #9aa0b8; letter-spacing: 1.2px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 10px; color: #888; letter-spacing: 1px;
       text-transform: uppercase; margin-bottom: 10px;
     }
     #best_time {
-      font-size: 11px; color: #9aa0b8; margin-top: 4px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11px; color: #888; margin-top: 4px;
     }
-    #best_time span { color: #1a7a4a; font-weight: 700; }
+    #best_time span { color: #1a5c1a; font-weight: 600; }
 
-    /* Grid area */
+    /* Grid */
     .grid-wrap {
       display: flex; flex-direction: column;
-      align-items: center; padding-top: 8px;
+      align-items: center; padding-top: 6px;
       width: 100%;
     }
     .grid-box {
-      background: #ffffff; border-radius: 14px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-      padding: 8px;
-      width: 100%; max-width: 536px;
+      background: #ffffff;
+      border: 1px solid #d8d4cc;
+      border-radius: 2px;
+      padding: 6px;
+      width: 100%; max-width: 534px;
       box-sizing: border-box;
     }
     #grid_plot img { width: 100% !important; height: auto !important; }
 
     /* Help text */
     .help-text {
-      font-size: 11px; color: #5a6080; margin-top: 16px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11px; color: #888; margin-top: 18px;
       line-height: 1.7;
     }
     .help-text ul { padding-left: 14px; margin: 3px 0 0 0; }
   "))),
 
   tags$div(
-    style = paste0(
-      "padding: 14px 20px 8px 20px;",
-      "background: #fff;",
-      "border-bottom: 1px solid #e8eaf0;",
-      "margin-bottom: 18px;"
-    ),
+    style = "padding: 14px 20px 10px 20px; border-bottom: 1px solid #d8d4cc; margin-bottom: 18px; background: #fafaf8;",
     tags$span("Slitherlink",
-      style = "font-size:20px; font-weight:700; color:#1a1d23; letter-spacing:-0.3px;"),
-    tags$span(" \u2014 Draw a single closed loop",
-      style = "font-size:12px; color:#9aa0b8; margin-left:8px; font-weight:500;")
+      style = "font-size: 18px; font-weight: 700; color: #1c1c1c; font-family: Georgia, serif; letter-spacing: 0.2px;"),
+    tags$span(" \u2014 draw a single closed loop",
+      style = "font-size: 12px; color: #888; margin-left: 8px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;")
   ),
 
   sidebarLayout(
