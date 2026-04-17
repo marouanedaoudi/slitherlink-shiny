@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">slitherlinkshiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,7 +117,7 @@
 <li>Click near any segment to cycle its state: empty → drawn → crossed → empty</li>
 <li>Status indicator shows <em>In progress</em>, <em>Constraint violated</em>, or <em>Puzzle solved!</em>
 </li>
-<li>MM:SS timer starts on the first click and freezes when the puzzle is solved</li>
+<li>MM:SS timer starts on the first move or hint and freezes when the puzzle is solved</li>
 </ul>
 <hr>
 </div>
@@ -214,14 +214,34 @@
 <td>3×3</td>
 </tr>
 <tr>
+<td><code>easy_4x4</code></td>
+<td>Easy</td>
+<td>4×4</td>
+</tr>
+<tr>
 <td><code>medium_4x4</code></td>
 <td>Medium</td>
 <td>4×4</td>
 </tr>
 <tr>
+<td><code>medium_5x6</code></td>
+<td>Medium</td>
+<td>5×6</td>
+</tr>
+<tr>
 <td><code>hard_5x5</code></td>
 <td>Hard</td>
 <td>5×5</td>
+</tr>
+<tr>
+<td><code>hard_6x6</code></td>
+<td>Hard</td>
+<td>6×6</td>
+</tr>
+<tr>
+<td><code>hard_7x7</code></td>
+<td>Hard</td>
+<td>7×7</td>
 </tr>
 </tbody>
 </table>
@@ -238,7 +258,7 @@
   random_puzzle.R # random_puzzle()
   app.R           # run_app()
 inst/shiny/app.R  # Shiny application
-tests/testthat/   # 72 tests
+tests/testthat/   # 77 tests
 vignettes/        # Introduction vignette</code></pre>
 <hr>
 </div>

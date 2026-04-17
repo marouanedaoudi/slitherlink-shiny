@@ -2,8 +2,8 @@
 
 Creates a puzzle by first generating a random valid closed loop on an n
 x m grid (via random region growth), then deriving the clue counts from
-that loop. The resulting grid has all segments reset to empty but
-carries clues that are guaranteed to have at least one solution.
+that loop. Puzzles are verified to have a unique solution before being
+returned; attempts that yield multiple solutions are discarded.
 
 ## Usage
 

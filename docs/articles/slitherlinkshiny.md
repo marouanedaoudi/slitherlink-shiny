@@ -75,7 +75,8 @@ print(g)
 
 ## Predefined puzzles
 
-The package ships with three ready-to-play puzzles.
+The package ships with seven ready-to-play puzzles spanning three
+difficulty levels.
 
 ``` r
 
@@ -84,6 +85,10 @@ list_puzzles()
 #> easy_3x3     easy_3x3       easy  3x3     TRUE
 #> medium_4x4 medium_4x4     medium  4x4     TRUE
 #> hard_5x5     hard_5x5       hard  5x5     TRUE
+#> easy_4x4     easy_4x4       easy  4x4     TRUE
+#> medium_5x6 medium_5x6     medium  5x6     TRUE
+#> hard_6x6     hard_6x6       hard  6x6     TRUE
+#> hard_7x7     hard_7x7       hard  7x7     TRUE
 ```
 
 Load one with
@@ -211,7 +216,7 @@ is_solved(sol)
 #> [1] TRUE
 ```
 
-The solver works on all three built-in puzzles:
+The solver works on all built-in puzzles:
 
 ``` r
 
@@ -221,7 +226,11 @@ for (nm in list_puzzles()$name) {
 }
 #> easy_3x3 → solved: TRUE 
 #> medium_4x4 → solved: TRUE 
-#> hard_5x5 → solved: TRUE
+#> hard_5x5 → solved: TRUE 
+#> easy_4x4 → solved: TRUE 
+#> medium_5x6 → solved: TRUE 
+#> hard_6x6 → solved: TRUE 
+#> hard_7x7 → solved: TRUE
 ```
 
 If the puzzle has no valid solution,
@@ -234,6 +243,64 @@ impossible <- init_grid(matrix(2L, 1, 1))  # clue 2 in a 1x1 grid: impossible
 is.null(solve_grid(impossible))
 #> [1] TRUE
 ```
+
+------------------------------------------------------------------------
+
+## How the solver works
+
+[`solve_grid()`](https://marouanedaoudi.github.io/slitherlink-shiny/reference/solve_grid.md)
+combines two classical techniques from constraint programming.
+
+### Constraint propagation
+
+Before any branching, the solver applies deduction rules exhaustively
+until no further progress can be made (fixpoint).
+
+**Cell rules** — for every cell with a clue $`c`$, let $`d`$ = drawn
+edges and $`f`$ = free edges:
+
+- If $`d = c`$: all $`f`$ remaining free edges must be crossed (the clue
+  is already satisfied).
+- If $`d + f = c`$: all $`f`$ free edges must be drawn (every remaining
+  edge is needed).
+
+**Node rules** — for every grid intersection:
+
+- A node with two drawn edges already has its required degree; all
+  remaining free edges at that node are crossed.
+- A node with one drawn edge and exactly one free edge left must use
+  that edge (a valid loop requires degree 0 or 2 at every node).
+
+The engine also detects three types of contradiction that prove a
+partial assignment cannot lead to a solution: a clue is exceeded, a node
+reaches degree \> 2, or a sub-loop closes prematurely (a connected
+component of drawn edges already forms a cycle but not all drawn edges
+are part of it).
+
+Propagation repeats until neither `seg_h` nor `seg_v` changes, or a
+contradiction is found.
+
+### Backtracking with MRV heuristic
+
+When propagation stalls on an undecided segment, the solver branches: it
+tries drawing the segment, then crossing it, recursively.
+
+Rather than picking the first undecided segment, it uses the **Minimum
+Remaining Values (MRV)** heuristic: the chosen segment is adjacent to
+the cell with the smallest *slack* (free edges minus remaining edges
+still needed). Branching on the most constrained cell reduces the search
+tree significantly.
+
+### Uniqueness verification
+
+[`random_puzzle()`](https://marouanedaoudi.github.io/slitherlink-shiny/reference/random_puzzle.md)
+calls an internal `count_solutions()` function that counts distinct
+solutions up to a given limit and stops as soon as the limit is reached.
+Any candidate grid that admits two or more solutions is discarded, and
+the generation loop retries with a new random region. This guarantees
+that every puzzle returned by
+[`random_puzzle()`](https://marouanedaoudi.github.io/slitherlink-shiny/reference/random_puzzle.md)
+has exactly one solution.
 
 ------------------------------------------------------------------------
 

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">slitherlinkshiny</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -156,13 +156,18 @@ with three components:</p>
 <div class="section level2">
 <h2 id="predefined-puzzles">Predefined puzzles<a class="anchor" aria-label="anchor" href="#predefined-puzzles"></a>
 </h2>
-<p>The package ships with three ready-to-play puzzles.</p>
+<p>The package ships with seven ready-to-play puzzles spanning three
+difficulty levels.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/list_puzzles.html">list_puzzles</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                  name difficulty size verified</span></span>
 <span><span class="co">#&gt; easy_3x3     easy_3x3       easy  3x3     TRUE</span></span>
 <span><span class="co">#&gt; medium_4x4 medium_4x4     medium  4x4     TRUE</span></span>
-<span><span class="co">#&gt; hard_5x5     hard_5x5       hard  5x5     TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; hard_5x5     hard_5x5       hard  5x5     TRUE</span></span>
+<span><span class="co">#&gt; easy_4x4     easy_4x4       easy  4x4     TRUE</span></span>
+<span><span class="co">#&gt; medium_5x6 medium_5x6     medium  5x6     TRUE</span></span>
+<span><span class="co">#&gt; hard_6x6     hard_6x6       hard  6x6     TRUE</span></span>
+<span><span class="co">#&gt; hard_7x7     hard_7x7       hard  7x7     TRUE</span></span></code></pre></div>
 <p>Load one with <code><a href="../reference/get_puzzle.html">get_puzzle()</a></code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_puzzle.html">get_puzzle</a></span><span class="op">(</span><span class="st">"medium_4x4"</span><span class="op">)</span></span>
@@ -280,7 +285,7 @@ backtracking to find the unique solution.</p>
 <span><span class="co">#&gt; +---+---+---+</span></span>
 <span><span class="fu"><a href="../reference/is_solved.html">is_solved</a></span><span class="op">(</span><span class="va">sol</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<p>The solver works on all three built-in puzzles:</p>
+<p>The solver works on all built-in puzzles:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">nm</span> <span class="kw">in</span> <span class="fu"><a href="../reference/list_puzzles.html">list_puzzles</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">name</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">sol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/solve_grid.html">solve_grid</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_puzzle.html">get_puzzle</a></span><span class="op">(</span><span class="va">nm</span><span class="op">)</span><span class="op">)</span></span>
@@ -288,7 +293,11 @@ backtracking to find the unique solution.</p>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; easy_3x3 → solved: TRUE </span></span>
 <span><span class="co">#&gt; medium_4x4 → solved: TRUE </span></span>
-<span><span class="co">#&gt; hard_5x5 → solved: TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; hard_5x5 → solved: TRUE </span></span>
+<span><span class="co">#&gt; easy_4x4 → solved: TRUE </span></span>
+<span><span class="co">#&gt; medium_5x6 → solved: TRUE </span></span>
+<span><span class="co">#&gt; hard_6x6 → solved: TRUE </span></span>
+<span><span class="co">#&gt; hard_7x7 → solved: TRUE</span></span></code></pre></div>
 <p>If the puzzle has no valid solution, <code><a href="../reference/solve_grid.html">solve_grid()</a></code>
 returns <code>NULL</code>:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
@@ -296,6 +305,75 @@ returns <code>NULL</code>:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="fu"><a href="../reference/solve_grid.html">solve_grid</a></span><span class="op">(</span><span class="va">impossible</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <hr>
+</div>
+<div class="section level2">
+<h2 id="how-the-solver-works">How the solver works<a class="anchor" aria-label="anchor" href="#how-the-solver-works"></a>
+</h2>
+<p><code><a href="../reference/solve_grid.html">solve_grid()</a></code> combines two classical techniques from
+constraint programming.</p>
+<div class="section level3">
+<h3 id="constraint-propagation">Constraint propagation<a class="anchor" aria-label="anchor" href="#constraint-propagation"></a>
+</h3>
+<p>Before any branching, the solver applies deduction rules exhaustively
+until no further progress can be made (fixpoint).</p>
+<p><strong>Cell rules</strong> — for every cell with a clue
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>,
+let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+= drawn edges and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
+= free edges:</p>
+<ul>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">d = c</annotation></semantics></math>:
+all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
+remaining free edges must be crossed (the clue is already
+satisfied).</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>+</mo><mi>f</mi><mo>=</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">d + f = c</annotation></semantics></math>:
+all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
+free edges must be drawn (every remaining edge is needed).</li>
+</ul>
+<p><strong>Node rules</strong> — for every grid intersection:</p>
+<ul>
+<li>A node with two drawn edges already has its required degree; all
+remaining free edges at that node are crossed.</li>
+<li>A node with one drawn edge and exactly one free edge left must use
+that edge (a valid loop requires degree 0 or 2 at every node).</li>
+</ul>
+<p>The engine also detects three types of contradiction that prove a
+partial assignment cannot lead to a solution: a clue is exceeded, a node
+reaches degree &gt; 2, or a sub-loop closes prematurely (a connected
+component of drawn edges already forms a cycle but not all drawn edges
+are part of it).</p>
+<p>Propagation repeats until neither <code>seg_h</code> nor
+<code>seg_v</code> changes, or a contradiction is found.</p>
+</div>
+<div class="section level3">
+<h3 id="backtracking-with-mrv-heuristic">Backtracking with MRV heuristic<a class="anchor" aria-label="anchor" href="#backtracking-with-mrv-heuristic"></a>
+</h3>
+<p>When propagation stalls on an undecided segment, the solver branches:
+it tries drawing the segment, then crossing it, recursively.</p>
+<p>Rather than picking the first undecided segment, it uses the
+<strong>Minimum Remaining Values (MRV)</strong> heuristic: the chosen
+segment is adjacent to the cell with the smallest <em>slack</em> (free
+edges minus remaining edges still needed). Branching on the most
+constrained cell reduces the search tree significantly.</p>
+</div>
+<div class="section level3">
+<h3 id="uniqueness-verification">Uniqueness verification<a class="anchor" aria-label="anchor" href="#uniqueness-verification"></a>
+</h3>
+<p><code><a href="../reference/random_puzzle.html">random_puzzle()</a></code> calls an internal
+<code>count_solutions()</code> function that counts distinct solutions
+up to a given limit and stops as soon as the limit is reached. Any
+candidate grid that admits two or more solutions is discarded, and the
+generation loop retries with a new random region. This guarantees that
+every puzzle returned by <code><a href="../reference/random_puzzle.html">random_puzzle()</a></code> has exactly one
+solution.</p>
+<hr>
+</div>
 </div>
 <div class="section level2">
 <h2 id="interactive-shiny-app">Interactive Shiny app<a class="anchor" aria-label="anchor" href="#interactive-shiny-app"></a>
