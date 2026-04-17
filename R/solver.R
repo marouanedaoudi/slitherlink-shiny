@@ -332,6 +332,28 @@ backtrack <- function(grid) {
   NULL
 }
 
+# ------ Solution counter (uniqueness check) ----------------
+
+# Count solutions up to `max`. Stops as soon as `max` is reached.
+# Returns an integer in [0, max].
+count_solutions <- function(grid, max = 2L) {
+  result <- propagate(grid)
+  if (result$contradiction) return(0L)
+  grid <- result$grid
+
+  if (is_solved(grid)) return(1L)
+
+  chosen <- pick_segment(grid)
+  if (is.null(chosen)) return(0L)
+
+  count <- 0L
+  for (val in c(1L, -1L)) {
+    count <- count + count_solutions(set_seg(grid, chosen, val), max)
+    if (count >= max) return(count)
+  }
+  count
+}
+
 # ------ Public entry point ---------------------------------
 
 #' Solve a Slitherlink puzzle

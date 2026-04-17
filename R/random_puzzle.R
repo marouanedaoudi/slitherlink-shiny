@@ -2,8 +2,8 @@
 #'
 #' Creates a puzzle by first generating a random valid closed loop on an
 #' n x m grid (via random region growth), then deriving the clue counts
-#' from that loop.  The resulting grid has all segments reset to empty but
-#' carries clues that are guaranteed to have at least one solution.
+#' from that loop.  Puzzles are verified to have a unique solution before
+#' being returned; attempts that yield multiple solutions are discarded.
 #'
 #' @param n Integer. Number of rows (must be >= 2, default 5).
 #' @param m Integer. Number of columns (must be >= 2, default 5).
@@ -64,7 +64,11 @@ random_puzzle <- function(n = 5L, m = 5L, seed = NULL,
       }
     }
 
-    return(init_grid(clues))
+    # ---- reject if not uniquely solvable --------------------------------
+    puzzle <- init_grid(clues)
+    if (count_solutions(puzzle, max = 2L) != 1L) next
+
+    return(puzzle)
   }
 
   stop(

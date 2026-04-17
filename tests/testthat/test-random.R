@@ -27,6 +27,11 @@ test_that("random_puzzle is solvable", {
   expect_true(is_solved(sol))
 })
 
+test_that("random_puzzle has a unique solution", {
+  g <- random_puzzle(seed = 42L)
+  expect_equal(count_solutions(g, max = 2L), 1L)
+})
+
 test_that("random_puzzle is reproducible with same seed", {
   g1 <- random_puzzle(n = 5L, m = 5L, seed = 99L)
   g2 <- random_puzzle(n = 5L, m = 5L, seed = 99L)
